@@ -1,18 +1,19 @@
-import asyncio
-import websockets
+from flask import Flask
+from flask_sock import Sock
 import time
-from http import HTTPStatus
 
-async def handler(websocket):
-    async for message in websocket:
-        await websocket.send(f"{message}|{time.time()}")
+app = Flask(__name__)
+sock = Sock(app)
 
-async def health_check(path, request_headers):
-    if request_headers.get("Upgrade", "").lower() != "websocket":
-        return HTTPStatus.OK, [], b"OK"
+@app.route('/')
+def index():
+    return 'OK'
 
-async def main():
-    async with websockets.serve(handler, "0.0.0.0", 10000, process_request=health_check):
-        await asyncio.Future()
+@sock.route('/ws')
+def websocket(ws):
+    while True:
+        message = ws.receive()
+        ws.send(f"{message}|{time.time()}")
 
-asyncio.run(main())
+if __name__ == '__main__':
+    app.run()
