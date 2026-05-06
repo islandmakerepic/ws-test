@@ -12,7 +12,7 @@ async def health_check(path, request_headers):
         return HTTPStatus.OK, [], b"OK"
 
 async def main():
-    async with websockets.serve(handler, "0.0.0.0", 8765, process_request=health_check):
+    async with websockets.serve(handler, "0.0.0.0", 10000, process_request=health_check):
         await asyncio.Future()
 
 asyncio.run(main())
